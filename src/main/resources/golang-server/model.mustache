@@ -1,1 +1,26 @@
-# This is a sample model mustache template.
+{{>header}}
+package {{modelPackage}}
+{{#imports}}
+{{#-first}}
+
+import (
+{{/-first}}
+  "{{import}}"
+{{#-last}}
+)
+{{/-last}}
+{{/imports}}
+{{#models}}
+{{#model}}
+{{^isEnum}}
+
+// {{{classname}}} model{{#description}}: {{{description}}}{{/description}}
+type {{classname}} struct {
+{{#vars}}
+  // {{{name}}} field{{#description}}: {{{description}}}{{/description}}
+  {{name}} {{#isNullable}}*{{/isNullable}}{{dataType}} {{{vendorExtensions.tag}}}
+{{/vars}}
+}
+{{/isEnum}}
+{{/model}}
+{{/models}}

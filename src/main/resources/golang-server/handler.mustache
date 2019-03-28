@@ -1,0 +1,66 @@
+{{>header}}
+// Package {{apiPackage}} contains all API models and handlers
+package {{apiPackage}}
+
+import (
+	"net/http"
+
+	"github.com/go-chi/chi"
+	"github.com/phogolabs/rest"
+)
+{{#operations}}
+
+// {{classname}} handler{{#description}}: {{{.}}}{{/description}}
+type {{classname}} struct{
+ // TODO: add your dependencies here
+}
+
+// Mount mounts the {{classname}} handler
+func (h *{{classname}}) Mount(r chi.Router) {
+  r.Group(func(r chi.Router) {
+    {{#operation}}
+     r.{{httpMethod}}("{{{basePathWithoutHost}}}{{{path}}}", h.{{operationId}})
+    {{/operation}}
+  })
+}
+{{#operation}}
+
+// {{operationIdCamelCase}} operation{{#summary}}: {{{.}}}{{/summary}}
+{{#notes}}
+// {{{notes}}}
+{{/notes}}
+{{#allParams}}
+{{#required}}
+// @param {{paramName}}{{#description}}: {{{.}}}{{/description}}{{#defaultValue}} (default: {{.}}){{/defaultValue}}
+{{/required}}
+{{/allParams}}
+{{#hasOptionalParams}}
+{{#allParams}}
+{{^required}}
+// @param {{paramName}}{{#description}}: {{{.}}}{{/description}}{{#defaultValue}} (default: {{.}}){{/defaultValue}} (optional)
+{{/required}}
+{{/allParams}}
+{{/hasOptionalParams}}
+{{#returnType}}
+// @return {{{returnType}}}
+{{/returnType}}
+func (h *{{{classname}}}) {{{operationId}}}(w http.ResponseWriter, r *http.Request) {
+  {{#hasParams}}
+  input := &{{operationIdCamelCase}}Input{}
+
+  if err := rest.Bind(w, r, input); err != nil {
+    rest.Error(w, r, err)
+    return
+  }
+
+  {{/hasParams}}
+  //TODO: implement the operation {{nickname}}
+  {{#returnType}}
+
+  output := &{{operationIdCamelCase}}Output{}
+  rest.Render(w, r, output)
+  {{/returnType}}
+}
+
+{{/operation}}
+{{/operations}}

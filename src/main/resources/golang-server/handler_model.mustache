@@ -1,0 +1,181 @@
+{{>header}}
+// Package {{packageName}} contains all API models and handlers
+package {{packageName}}
+
+import (
+  "net/http"
+{{#imports}}
+{{#-first}}
+{{/-first}}
+  "{{import}}"
+{{#-last}}
+{{/-last}}
+{{/imports}}
+)
+{{#operations}}
+{{#operation}}
+{{#vendorExtensions.hasInputParams}}
+
+// {{operationIdCamelCase}}InputParam contains the parameters for the {{operationIdCamelCase}} operation
+type {{operationIdCamelCase}}InputParam struct {
+{{#vendorExtensions.inputParams}}
+{{#param}}
+  // {{paramName}} param{{#description}}: {{{.}}}{{/description}}
+  {{paramName}} {{#isNullable}}*{{/isNullable}}{{{dataType}}} {{{vendorExtensions.tag}}}
+{{/param}}
+{{/vendorExtensions.inputParams}}
+}
+
+// Bind manages request partameters
+func (p *{{operationIdCamelCase}}InputParam) Bind(r *http.Request) (err error) {
+  {{#vendorExtensions.hasPathParams}}
+  if err = rest.DecodePath(r, p); err != nil {
+    return err
+  }
+
+  {{/vendorExtensions.hasPathParams}}
+  {{#vendorExtensions.hasQueryParams}}
+  if err = rest.DecodeQuery(r, p); err != nil {
+    return err
+  }
+
+  {{/vendorExtensions.hasQueryParams}}
+  {{#vendorExtensions.hasFormParams}}
+  if err = rest.DecodeForm(r, p); err != nil {
+    return err
+  }
+
+  {{/vendorExtensions.hasFormParams}}
+  return nil
+}
+{{/vendorExtensions.hasInputParams}}
+{{#hasParams}}
+
+// {{operationIdCamelCase}}Input is the input for the {{operationIdCamelCase}} operation
+type {{operationIdCamelCase}}Input struct {
+  {{#vendorExtensions.hasInputParams}}
+  // Param contains the parameters for the {{operationIdCamelCase}} operation
+  Param {{operationIdCamelCase}}InputParam `json:"-"{{#withXml}} xml:"-"{{/withXml}}`
+  {{/vendorExtensions.hasInputParams}}
+  {{#vendorExtensions.hasBodyParams}}
+  {{#bodyParam}}
+  {{#isFile}}
+  // Filename is the name of the file
+  Filename string {{{vendorExtensions.tag}}}
+  // Size is the size of the file
+  Size int64 {{{vendorExtensions.tag}}}
+  {{/isFile}}
+  // Body payload{{#description}}: {{{description}}}{{/description}}
+  Body {{#isNullable}}*{{/isNullable}}{{{dataType}}} {{{vendorExtensions.tag}}}
+  {{/bodyParam}}
+  {{/vendorExtensions.hasBodyParams}}
+}
+
+// Bind manages request input
+func (p *{{operationIdCamelCase}}Input) Bind(r *http.Request) (err error) {
+  {{#vendorExtensions.hasBodyParams}}
+  {{#bodyParam}}
+  {{#isFile}}
+  var header *multipart.FileHeader
+  if p.Body, header, err = r.FormFile("{{baseName}}"); err != nil {
+    return
+  }
+
+  p.Filename = header.Filename
+  p.Size = header.Size
+
+  {{/isFile}}
+  {{#isByteArray}}
+  p.Body = base64.NewDecoder(base64.StdEncoding, r.Body)
+  {{/isByteArray}}
+  {{/bodyParam}}
+  {{/vendorExtensions.hasBodyParams}}
+  {{#vendorExtensions.hasInputParams}}
+  err = p.Param.Bind(r)
+  {{/vendorExtensions.hasInputParams}}
+  return
+}
+{{#vendorExtensions.hasBodyParams}}
+{{#bodyParam}}
+{{^isFile}}
+{{^isByteArray}}
+
+// UnmarshalJSON unmarshals the body from JSON
+func (p *{{operationIdCamelCase}}Input) UnmarshalJSON(data []byte) error {
+  return json.Unmarshal(data, {{^isNullable}}&{{/isNullable}}p.Body);
+}
+{{#withXml}}
+
+// UnmarshalXML unmarshals the body from XML
+func (p *{{operationIdCamelCase}}Input) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+  return e.DecodeElement({{^isNullable}}&{{/isNullable}}p.Body, start)
+}
+{{/withXml}}
+{{/isByteArray}}
+{{/isFile}}
+{{/bodyParam}}
+{{/vendorExtensions.hasBodyParams}}
+{{/hasParams}}
+{{#vendorExtensions.defaultResponse}}
+{{#hasHeaders}}
+
+// {{operationIdCamelCase}}OutputParam is the header for the {{operationIdCamelCase}} operation's output
+type {{operationIdCamelCase}}OutputParam struct {
+  {{#headers}}
+  // {{name}} header{{#description}}: {{{.}}}{{/description}}
+  {{name}} {{#isNullable}}*{{/isNullable}}{{{dataType}}} {{{vendorExtensions.tag}}}
+  {{/headers}}
+}
+
+// Render manages response payloads.
+func (h *{{operationIdCamelCase}}OutputParam) Render(w http.ResponseWriter, r *http.Request) (err error) {
+  return rest.EncodeHeader(w, h);
+}
+{{/hasHeaders}}
+
+// {{operationIdCamelCase}}Output is the output for the {{operationIdCamelCase}} operation
+type {{operationIdCamelCase}}Output struct {
+  {{#hasHeaders}}
+  Param {{operationIdCamelCase}}OutputParam `json:"-"{{#withXml}} xml:"-"{{/withXml}}`
+  {{/hasHeaders}}
+  // Body payload{{#description}}: {{{.}}}{{/description}}
+  Body {{#isNullable}}*{{/isNullable}}{{{dataType}}} {{{vendorExtensions.tag}}}
+}
+
+// Render manages response payloads.
+func (p *{{operationIdCamelCase}}Output) Render(w http.ResponseWriter, r *http.Request) (err error) {
+  w.WriteHeader({{code}})
+  {{#hasHeaders}}
+
+  if err = p.Param.Render(w, r); err != nil {
+    return
+  }
+  {{/hasHeaders}}
+  {{#isFile}}
+
+  _, err = io.Copy(w, p.Body)
+  {{/isFile}}
+  {{#isByteArray}}
+
+  writer := base64.NewEncoder(base64.StdEncoding, w)
+  _, err = io.Copy(writer, p.Body)
+  {{/isByteArray}}
+  return
+}
+{{^isFile}}{{^isByteArray}}
+// MarshalJSON marshals the body as JSON
+func (p *{{operationIdCamelCase}}Output) MarshalJSON() ([]byte, error) {
+  return json.Marshal(&p.Body);
+}
+{{#withXml}}
+
+// MarshalXML marshals the body as XML
+func (p *{{operationIdCamelCase}}Output) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+  return e.EncodeElement(&p.Body, start)
+}
+{{/withXml}}
+{{/isByteArray}}
+{{/isFile}}
+{{/vendorExtensions.defaultResponse}}
+{{/operation}}
+{{/operations}}

@@ -1,0 +1,59 @@
+# {{classname}}
+
+> {{description}}
+
+All URIs are relative to *{{basePath}}*
+
+Operation | Method | Path | Description
+------------- | ------------- |------------- | -------------
+{{#operations}}
+{{#operation}}
+[**{{operationId}}**]({{classname}}.md#{{operationId}}) | **{{httpMethod}}** | {{path}} | {{#summary}}{{summary}}{{/summary}}
+{{/operation}}
+{{/operations}}
+{{#operations}}
+{{#operation}}
+
+## {{{operationId}}}
+
+> {{{summary}}}{{#notes}}{{{notes}}}{{/notes}}
+
+{{^allParams}}
+### Parameters
+
+This endpoint does not need any parameter.
+{{/allParams}}
+
+### Required Parameters
+
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+{{#requiredParams}}
+**{{paramName}}** | {{#isNullable}}Pointer to {{/isNullable}}{{#isPrimitiveType}}**{{{dataType}}}**{{/isPrimitiveType}}{{^isPrimitiveType}}[**{{{dataType}}}**]({{complexType}}.md){{/isPrimitiveType}} | {{description}} | {{^required}}[optional] {{/required}}{{#readOnly}}[readonly] {{/readOnly}}{{#defaultValue}}[default to {{{.}}}]{{/defaultValue}}
+{{/requiredParams}}
+
+### Optional Parameters
+
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+{{#optionalParams}}
+**{{paramName}}** | {{#isNullable}}Pointer to {{/isNullable}}{{#isPrimitiveType}}**{{{dataType}}}**{{/isPrimitiveType}}{{^isPrimitiveType}}[**{{{dataType}}}**]({{complexType}}.md){{/isPrimitiveType}} | {{description}} | {{^required}}[optional] {{/required}}{{#readOnly}}[readonly] {{/readOnly}}{{#defaultValue}}[default to {{{.}}}]{{/defaultValue}}
+{{/optionalParams}}
+
+### Return type
+
+{{#returnType}}{{#returnTypeIsPrimitive}}**{{{returnType}}}**{{/returnTypeIsPrimitive}}{{^returnTypeIsPrimitive}}[**{{{returnType}}}**]({{returnBaseType}}.md){{/returnTypeIsPrimitive}}{{/returnType}}{{^returnType}} (empty response body){{/returnType}}
+
+### Authorization
+
+{{^authMethods}}No authorization required{{/authMethods}}{{#authMethods}}[{{{name}}}](../README.md#{{{name}}}){{^-last}}, {{/-last}}{{/authMethods}}
+
+### HTTP request headers
+
+- **Content-Type**: {{#consumes}}`{{{mediaType}}}`{{#hasMore}}, {{/hasMore}}{{/consumes}}{{^consumes}}Not defined{{/consumes}}
+- **Accept**: {{#produces}}`{{{mediaType}}}`{{#hasMore}}, {{/hasMore}}{{/produces}}{{^produces}}Not defined{{/produces}}
+
+{{/operation}}
+{{/operations}}
+
+[[Back to top]](#) [[Back to API list]](./README.md#endpoints) [[Back to Model list]](./README.md#models) [[Back to README]](./README.md)
