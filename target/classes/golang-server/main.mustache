@@ -1,16 +1,27 @@
 package main
 
 import (
+<<<<<<< HEAD
+=======
+	"fmt"
+>>>>>>> dc4f87d... WIP
 	"net/http"
 	"os"
 	"syscall"
 
 	"github.com/phogolabs/cli"
+<<<<<<< HEAD
+=======
+	"github.com/phogolabs/cli/provider/aws/s3"
+>>>>>>> dc4f87d... WIP
 	"github.com/phogolabs/log"
 	"github.com/phogolabs/log/handler/json"
 	"github.com/phogolabs/log/handler/rollbar"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+<<<<<<< HEAD
 	"{{projectPath}}/service"
+=======
+>>>>>>> dc4f87d... WIP
 )
 
 var (
@@ -23,18 +34,27 @@ var flags = []cli.Flag{
 		Name:   "log-level",
 		Value:  "INFO",
 		Usage:  "level of logging",
+<<<<<<< HEAD
 		EnvVar: "{{projectEnv}}_LOG_LEVEL",
+=======
+		EnvVar: "APP_API_LOG_LEVEL",
+>>>>>>> dc4f87d... WIP
 	},
 	&cli.StringFlag{
 		Name:   "rollbar-token",
 		Value:  "",
 		Usage:  "Rollbar Token",
+<<<<<<< HEAD
 		EnvVar: "{{projectEnv}}_ROLLBAR_TOKEN",
+=======
+		EnvVar: "APP_API_ROLLBAR_TOKEN",
+>>>>>>> dc4f87d... WIP
 	},
 	&cli.StringFlag{
 		Name:   "rollbar-environment",
 		Value:  "development",
 		Usage:  "Rollbar Environment",
+<<<<<<< HEAD
 		EnvVar: "{{projectEnv}}_ROLLBAR_ENVIRONMENT",
 	},
 	&cli.StringFlag{
@@ -42,16 +62,33 @@ var flags = []cli.Flag{
 		Value:  ":9292",
 		Usage:  "listen address of metrics HTTP server",
 		EnvVar: "{{projectEnv}}_METRICS_LISTEN_ADDR",
+=======
+		EnvVar: "APP_API_ROLLBAR_ENVIRONMENT",
+	},
+	&cli.StringFlag{
+		Name:   "metrics-listen-addr",
+		Value:  ":8282",
+		Usage:  "listen address of metrics HTTP server",
+		EnvVar: "APP_API_METRICS_LISTEN_ADDR",
+>>>>>>> dc4f87d... WIP
 	},
 }
 
 func main() {
 	app := &cli.App{
+<<<<<<< HEAD
 		Name:       "{{projectName}}",
 		HelpName:   "{{projectName}}",
 		Usage:      "{{projectName}} http service",
 		UsageText:  "{{projectName}} [global options]",
 		Version:    Build,
+=======
+    Name:       "{{gitRepoId}}",
+    HelpName:   "{{gitRepoId}}",
+    Usage:      "{{gitRepoId}} http service",
+    UsageText:  "{{gitRepoId}} [global options]",
+    Version:    Build,
+>>>>>>> dc4f87d... WIP
 		Writer:     os.Stdout,
 		ErrWriter:  os.Stderr,
 		Flags:      flags,
@@ -60,6 +97,10 @@ func main() {
 		AfterInit:  afterInit,
 		BeforeInit: beforeInit,
 		Signals:    []os.Signal{syscall.SIGTERM},
+<<<<<<< HEAD
+=======
+		Providers:  []cli.Provider{&s3.Provider{}},
+>>>>>>> dc4f87d... WIP
 	}
 
 	app.Run(os.Args)
@@ -92,7 +133,11 @@ func afterInit(ctx *cli.Context) error {
 			Token:       ctx.String("rollbar-token"),
 			Environment: ctx.String("rollbar-environment"),
 			ServerHost:  os.Getenv("HOSTNAME"),
+<<<<<<< HEAD
 			ServerRoot:  "https://{{projectPath}}",
+=======
+      ServerRoot:  "https://github.com/{{gitUserId}}/{{gitRepoId}}",
+>>>>>>> dc4f87d... WIP
 		}),
 	}
 
@@ -105,6 +150,7 @@ func afterInit(ctx *cli.Context) error {
 	return nil
 }
 
+<<<<<<< HEAD
 func run(ctx *cli.Context) (err error) {
 	server := newServer(ctx)
 	ctx.Metadata["server"] = server
@@ -147,3 +193,13 @@ func newServer(ctx *cli.Context) *http.Server {
 		Handler: handler,
 	}
 }
+=======
+func run(ctx *cli.Context) error {
+	go http.ListenAndServe(ctx.String("metrics-listen-addr"), promhttp.Handler())
+	return nil
+}
+
+func term(ctx *cli.Context) error {
+	return nil
+}
+>>>>>>> dc4f87d... WIP

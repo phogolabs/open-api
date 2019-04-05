@@ -1,0 +1,39 @@
+# Documentation
+
+{{#appDescription}}
+{{{appDescription}}}
+{{/appDescription}}
+
+## Overview
+
+API version: {{appVersion}}
+
+## Endpoints
+
+All URIs are relative to *{{basePath}}*
+
+Class | Operation | Method | Path | Description
+------------ | ------------- |------------- | ------------- | -------------
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+{{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}*{{classname}}* | [**{{operationIdCamelCase}}**]({{apiDocPath}}{{classname}}.md#{{operationIdLowerCase}}) | **{{vendorExtensions.httpMethod}}** | {{path}} | {{#summary}}{{summary}}{{/summary}}
+=======
+{{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}*{{classname}}* | [**{{operationId}}**]({{apiDocPath}}{{classname}}.md#{{operationIdLowerCase}}) | **{{httpMethod}}** | {{path}} | {{#summary}}{{summary}}{{/summary}}
+>>>>>>> dc4f87d... WIP
+=======
+{{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}*{{classname}}* | [**{{operationIdCamelCase}}**]({{apiDocPath}}{{classname}}.md#{{operationIdLowerCase}}) | **{{httpMethod}}** | {{path}} | {{#summary}}{{summary}}{{/summary}}
+>>>>>>> 36f53e5... WIp
+=======
+{{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}*{{classname}}* | [**{{operationIdCamelCase}}**]({{apiDocPath}}{{classname}}.md#{{operationIdLowerCase}}) | **{{vendorExtensions.httpMethod}}** | {{path}} | {{#summary}}{{summary}}{{/summary}}
+>>>>>>> e6e99b8... WIP
+{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
+
+## Models
+
+{{#models}}{{#model}} - [{{{classname}}}]({{modelDocPath}}{{{classname}}}.md)
+{{/model}}{{/models}}
+
+## Author
+
+{{#apiInfo}}{{#apis}}{{^hasMore}}{{infoEmail}}{{/hasMore}}{{/apis}}{{/apiInfo}}

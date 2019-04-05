@@ -1,0 +1,38 @@
+package service
+
+import (
+	"net/http"
+
+	"github.com/go-chi/chi"
+  "{{projectPath}}/service/{{apiPackage}}"
+)
+
+// Route for this service
+type Route interface {
+	// Mount mounts the route
+	Mount(r chi.Router)
+}
+
+// Config is the configuration of your service
+type Config struct {
+	//TODO: add your configuration setting here
+}
+
+// New creates a new service
+func New(config *Config) http.Handler {
+	routes := []Route{
+  {{#apiInfo}}
+  {{#apis}}
+    &handler.{{classname}}{},
+  {{/apis}}
+  {{/apiInfo}}
+  }
+
+	router := chi.NewRouter()
+
+	for _, route := range routes {
+		route.Mount(router)
+	}
+
+	return router
+}

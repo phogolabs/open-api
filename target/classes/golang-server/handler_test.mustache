@@ -1,4 +1,12 @@
+<<<<<<< HEAD
+<<<<<<< HEAD
 package {{apiPackage}}_test
+=======
+package {{packageName}}_test
+>>>>>>> dc4f87d... WIP
+=======
+package {{apiPackage}}_test
+>>>>>>> 2cd3c15... WIP
 
 import (
   "net/http"
@@ -8,7 +16,14 @@ import (
   . "github.com/onsi/gomega"
 
   "github.com/go-chi/chi"
+<<<<<<< HEAD
+<<<<<<< HEAD
   "{{projectPath}}/service/{{apiPackage}}"
+=======
+>>>>>>> dc4f87d... WIP
+=======
+  "{{projectPath}}/service/{{apiPackage}}"
+>>>>>>> 2cd3c15... WIP
 )
 
 {{#operations}}
@@ -28,7 +43,15 @@ var _ = Describe("{{classname}}", func() {
   })
   {{#operation}}
 
+<<<<<<< HEAD
+<<<<<<< HEAD
   Describe("{{vendorExtensions.httpMethod}} {{path}}", func() {
+=======
+  Describe("{{httpMethod}} {{path}}", func() {
+>>>>>>> dc4f87d... WIP
+=======
+  Describe("{{vendorExtensions.httpMethod}} {{path}}", func() {
+>>>>>>> e6e99b8... WIP
     BeforeEach(func() {
       //TODO: initialize the request here
     })

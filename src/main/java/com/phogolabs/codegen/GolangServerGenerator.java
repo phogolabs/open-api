@@ -1,16 +1,23 @@
 package com.phogolabs.codegen;
 
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.responses.ApiResponse;
-import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.Paths;
-import org.apache.http.util.TextUtils;
 import org.openapitools.codegen.*;
 import org.openapitools.codegen.utils.StringUtils;
+import org.openapitools.codegen.utils.ModelUtils;
+
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class GolangServerGenerator extends DefaultCodegen {
+    // Constants
+    public static final String PROJECT_PATH = "projectPath";
+    public static final String PROJECT_ENV = "projectEnv";
+
     /**
      * Configures the type of generator.
      *
@@ -71,6 +78,7 @@ public class GolangServerGenerator extends DefaultCodegen {
         supportingFiles.add(new SupportingFile("model.mustache", "service/handler", "model.go"));
         supportingFiles.add(new SupportingFile("gitkeep.mustache", "service/middleware", ".gitkeep"));
         supportingFiles.add(new SupportingFile("suite_test.mustache", "service/handler", "suite_test.go"));
+        supportingFiles.add(new SupportingFile("service.mustache", "service", "service.go"));
 
         // reserved words
         setReservedWordsLowerCase(
@@ -177,6 +185,9 @@ public class GolangServerGenerator extends DefaultCodegen {
     public void processOpts() {
         super.processOpts();
 
+        additionalProperties.put(GolangServerGenerator.PROJECT_PATH, this.projectPath());
+        additionalProperties.put(GolangServerGenerator.PROJECT_ENV, this.projectEnv());
+
         additionalProperties.put(CodegenConstants.PROJECT_NAME, this.projectName());
         additionalProperties.put(CodegenConstants.PACKAGE_NAME, this.projectName());
         additionalProperties.put(CodegenConstants.PACKAGE_VERSION, "1.0.0");
@@ -198,6 +209,7 @@ public class GolangServerGenerator extends DefaultCodegen {
 
          for (CodegenOperation operation : operations) {
              operation.httpMethod = StringUtils.camelize(operation.httpMethod.toLowerCase(Locale.ROOT));
+             operation.vendorExtensions.put("httpMethod", operation.httpMethod.toUpperCase(Locale.ROOT));
 
              List<Map<String, Object>> input = new ArrayList<Map<String, Object>>();
 
@@ -311,6 +323,7 @@ public class GolangServerGenerator extends DefaultCodegen {
             baseType = property.dataType;
         } else if (property.isListContainer) {
             baseType = property.items.dataType;
+            property.complexType = baseType;
         }
 
         model.imports.remove(baseType);
@@ -411,6 +424,12 @@ public class GolangServerGenerator extends DefaultCodegen {
     @Override
     public void postProcessParameter(CodegenParameter param) {
         buildParameterTag(param);
+
+        if (param.isContainer) {
+            param.vendorExtensions.put("dataType", param.items.dataType);
+        } else {
+            param.vendorExtensions.put("dataType", param.dataType);
+        }
     }
 
     private void buildParameterTag(CodegenParameter property) {
@@ -524,6 +543,63 @@ public class GolangServerGenerator extends DefaultCodegen {
         return result;
     }
 
+
+    @Override
+    public String getTypeDeclaration(Schema p) {
+        if (ModelUtils.isArraySchema(p)) {
+            ArraySchema ap = (ArraySchema) p;
+            Schema inner = ap.getItems();
+            return "[]" + getTypeDeclaration(inner);
+        } else if (ModelUtils.isMapSchema(p)) {
+            Schema inner = ModelUtils.getAdditionalProperties(p);
+            return getSchemaType(p) + "[string]" + getTypeDeclaration(inner);
+        }
+        //return super.getTypeDeclaration(p);
+
+        // Not using the supertype invocation, because we want to UpperCamelize
+        // the type.
+        String openAPIType = getSchemaType(p);
+        String ref = p.get$ref();
+        if (ref != null && !ref.isEmpty()) {
+            String tryRefV2 = "#/definitions/" + openAPIType;
+            String tryRefV3 = "#/components/schemas/" + openAPIType;
+            if (ref.equals(tryRefV2) || ref.equals(tryRefV3)) {
+                return toModelName(openAPIType);
+            }
+        }
+
+        if (typeMapping.containsKey(openAPIType)) {
+            return typeMapping.get(openAPIType);
+        }
+
+        if (typeMapping.containsValue(openAPIType)) {
+            return openAPIType;
+        }
+
+        if (languageSpecificPrimitives.contains(openAPIType)) {
+            return openAPIType;
+        }
+
+        return toModelName(openAPIType);
+    }
+
+    @Override
+    public String getSchemaType(Schema p) {
+        String openAPIType = super.getSchemaType(p);
+        String ref = p.get$ref();
+        String type = null;
+
+        if (ref != null && !ref.isEmpty()) {
+            type = openAPIType;
+        } else if (typeMapping.containsKey(openAPIType)) {
+            type = typeMapping.get(openAPIType);
+            if (languageSpecificPrimitives.contains(type))
+                return (type);
+        } else
+            type = openAPIType;
+        return type;
+    }
+
     @Override
     public String toModelImport(String name) {
         if (this.apiPackage().equals(this.modelPackage())) {
@@ -535,8 +611,23 @@ public class GolangServerGenerator extends DefaultCodegen {
     }
 
     private String projectName() {
-        String name = new File(this.outputFolder()).getName();
+        String name = Paths.get(this.outputFolder()).normalize().getFileName().toString();
         return name;
+    }
+
+    private String projectEnv() {
+        String name = projectName();
+        name = StringUtils.underscore(name);
+        name = name.toUpperCase(Locale.ROOT);
+        return name;
+    }
+
+    private String projectPath() {
+        Path path = Paths.get(System.getenv("GOPATH") + File.separator + "src").normalize();
+        Path current = Paths.get(this.outputFolder()).normalize().toAbsolutePath();
+        
+        String root = path.relativize(current).normalize().toString();
+        return root;
     }
 
     private String mainFilePath() {
@@ -565,13 +656,8 @@ public class GolangServerGenerator extends DefaultCodegen {
     }
 
     @java.lang.Override
-    public java.lang.String toModelFilename(java.lang.String name) {
+    public String toModelFilename(java.lang.String name) {
         return StringUtils.underscore(this.toModelName(name));
-    }
-
-    @java.lang.Override
-    protected java.lang.String getOrGenerateOperationId(Operation operation, java.lang.String path, java.lang.String httpMethod) {
-        return super.getOrGenerateOperationId(operation, path, httpMethod);
     }
 
     @Override

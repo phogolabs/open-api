@@ -14,7 +14,7 @@ All URIs are relative to *{{basePath}}*
 
 Class | Operation | Method | Path | Description
 ------------ | ------------- |------------- | ------------- | -------------
-{{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}*{{classname}}* | [**{{operationId}}**]({{apiDocPath}}{{classname}}.md#{{operationIdLowerCase}}) | **{{httpMethod}}** | {{path}} | {{#summary}}{{summary}}{{/summary}}
+{{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}*{{classname}}* | [**{{operationIdCamelCase}}**]({{apiDocPath}}{{classname}}.md#{{operationIdLowerCase}}) | **{{vendorExtensions.httpMethod}}** | {{path}} | {{#summary}}{{summary}}{{/summary}}
 {{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
 
 ## Models

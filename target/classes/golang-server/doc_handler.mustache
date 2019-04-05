@@ -1,0 +1,107 @@
+# {{classname}}
+
+> {{description}}
+
+All URIs are relative to *{{basePath}}*
+
+Operation | Method | Path | Description
+------------- | ------------- |------------- | -------------
+{{#operations}}
+{{#operation}}
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+[**{{operationIdCamelCase}}**]({{classname}}.md#{{operationIdCamelCase}}) | **{{vendorExtensions.httpMethod}}** | {{path}} | {{#summary}}{{summary}}{{/summary}}
+=======
+[**{{operationId}}**]({{classname}}.md#{{operationId}}) | **{{httpMethod}}** | {{path}} | {{#summary}}{{summary}}{{/summary}}
+>>>>>>> dc4f87d... WIP
+=======
+[**{{operationId}}**]({{classname}}.md#{{operationIdCamelCase}}) | **{{httpMethod}}** | {{path}} | {{#summary}}{{summary}}{{/summary}}
+>>>>>>> 36f53e5... WIp
+=======
+[**{{operationIdCamelCase}}**]({{classname}}.md#{{operationIdCamelCase}}) | **{{httpMethod}}** | {{path}} | {{#summary}}{{summary}}{{/summary}}
+>>>>>>> 8bcffcd... WIP
+=======
+[**{{operationIdCamelCase}}**]({{classname}}.md#{{operationIdCamelCase}}) | **{{vendorExtensions.httpMethod}}** | {{path}} | {{#summary}}{{summary}}{{/summary}}
+>>>>>>> e6e99b8... WIP
+{{/operation}}
+{{/operations}}
+{{#operations}}
+{{#operation}}
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+## {{{operationIdCamelCase}}}
+=======
+## {{{operationId}}}
+>>>>>>> dc4f87d... WIP
+=======
+## {{{operationIdCamelCase}}}
+>>>>>>> 36f53e5... WIp
+
+> {{{summary}}}{{#notes}}{{{notes}}}{{/notes}}
+
+{{^allParams}}
+### Parameters
+
+This endpoint does not need any parameter.
+{{/allParams}}
+
+### Required Parameters
+
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+{{#requiredParams}}
+<<<<<<< HEAD
+<<<<<<< HEAD
+**{{paramName}}** | {{#isNullable}}Pointer to {{/isNullable}}{{#isPrimitiveType}}**{{{dataType}}}**{{/isPrimitiveType}}{{^isPrimitiveType}}[**{{{dataType}}}**]({{vendorExtensions.dataType}}.md){{/isPrimitiveType}} | {{description}} | {{^required}}[optional] {{/required}}{{#readOnly}}[readonly] {{/readOnly}}{{#defaultValue}}[default to {{{.}}}]{{/defaultValue}}
+=======
+**{{paramName}}** | {{#isNullable}}Pointer to {{/isNullable}}{{#isPrimitiveType}}**{{{dataType}}}**{{/isPrimitiveType}}{{^isPrimitiveType}}[**{{{dataType}}}**]({{complexType}}.md){{/isPrimitiveType}} | {{description}} | {{^required}}[optional] {{/required}}{{#readOnly}}[readonly] {{/readOnly}}{{#defaultValue}}[default to {{{.}}}]{{/defaultValue}}
+>>>>>>> dc4f87d... WIP
+=======
+**{{paramName}}** | {{#isNullable}}Pointer to {{/isNullable}}{{#isPrimitiveType}}**{{{dataType}}}**{{/isPrimitiveType}}{{^isPrimitiveType}}[**{{{dataType}}}**]({{vendorExtensions.dataType}}.md){{/isPrimitiveType}} | {{description}} | {{^required}}[optional] {{/required}}{{#readOnly}}[readonly] {{/readOnly}}{{#defaultValue}}[default to {{{.}}}]{{/defaultValue}}
+>>>>>>> e6e99b8... WIP
+{{/requiredParams}}
+
+### Optional Parameters
+
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+{{#optionalParams}}
+<<<<<<< HEAD
+<<<<<<< HEAD
+**{{paramName}}** | {{#isNullable}}Pointer to {{/isNullable}}{{#isPrimitiveType}}**{{{dataType}}}**{{/isPrimitiveType}}{{^isPrimitiveType}}[**{{{dataType}}}**]({{vendorExtensions.dataType}}.md){{/isPrimitiveType}} | {{description}} | {{^required}}[optional] {{/required}}{{#readOnly}}[readonly] {{/readOnly}}{{#defaultValue}}[default to {{{.}}}]{{/defaultValue}}
+=======
+**{{paramName}}** | {{#isNullable}}Pointer to {{/isNullable}}{{#isPrimitiveType}}**{{{dataType}}}**{{/isPrimitiveType}}{{^isPrimitiveType}}[**{{{dataType}}}**]({{complexType}}.md){{/isPrimitiveType}} | {{description}} | {{^required}}[optional] {{/required}}{{#readOnly}}[readonly] {{/readOnly}}{{#defaultValue}}[default to {{{.}}}]{{/defaultValue}}
+>>>>>>> dc4f87d... WIP
+=======
+**{{paramName}}** | {{#isNullable}}Pointer to {{/isNullable}}{{#isPrimitiveType}}**{{{dataType}}}**{{/isPrimitiveType}}{{^isPrimitiveType}}[**{{{dataType}}}**]({{vendorExtensions.dataType}}.md){{/isPrimitiveType}} | {{description}} | {{^required}}[optional] {{/required}}{{#readOnly}}[readonly] {{/readOnly}}{{#defaultValue}}[default to {{{.}}}]{{/defaultValue}}
+>>>>>>> e6e99b8... WIP
+{{/optionalParams}}
+
+### Return type
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+{{#returnType}}{{#returnTypeIsPrimitive}}**{{{returnType}}}**{{/returnTypeIsPrimitive}}{{^returnTypeIsPrimitive}}[**{{{returnType}}}**]({{returnType}}.md){{/returnTypeIsPrimitive}}{{/returnType}}{{^returnType}} (empty response body){{/returnType}}
+=======
+{{#returnType}}{{#returnTypeIsPrimitive}}**{{{returnType}}}**{{/returnTypeIsPrimitive}}{{^returnTypeIsPrimitive}}[**{{{returnType}}}**]({{returnBaseType}}.md){{/returnTypeIsPrimitive}}{{/returnType}}{{^returnType}} (empty response body){{/returnType}}
+
+### Authorization
+
+{{^authMethods}}No authorization required{{/authMethods}}{{#authMethods}}[{{{name}}}](../README.md#{{{name}}}){{^-last}}, {{/-last}}{{/authMethods}}
+>>>>>>> dc4f87d... WIP
+=======
+{{#returnType}}{{#returnTypeIsPrimitive}}**{{{returnType}}}**{{/returnTypeIsPrimitive}}{{^returnTypeIsPrimitive}}[**{{{returnType}}}**]({{returnType}}.md){{/returnTypeIsPrimitive}}{{/returnType}}{{^returnType}} (empty response body){{/returnType}}
+>>>>>>> e6e99b8... WIP
+
+### HTTP request headers
+
+- **Content-Type**: {{#consumes}}`{{{mediaType}}}`{{#hasMore}}, {{/hasMore}}{{/consumes}}{{^consumes}}Not defined{{/consumes}}
+- **Accept**: {{#produces}}`{{{mediaType}}}`{{#hasMore}}, {{/hasMore}}{{/produces}}{{^produces}}Not defined{{/produces}}
+
+{{/operation}}
+{{/operations}}
+
+[[Back to top]](#) [[Back to API list]](./README.md#endpoints) [[Back to Model list]](./README.md#models) [[Back to README]](./README.md)

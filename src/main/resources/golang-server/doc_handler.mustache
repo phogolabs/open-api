@@ -8,13 +8,13 @@ Operation | Method | Path | Description
 ------------- | ------------- |------------- | -------------
 {{#operations}}
 {{#operation}}
-[**{{operationId}}**]({{classname}}.md#{{operationId}}) | **{{httpMethod}}** | {{path}} | {{#summary}}{{summary}}{{/summary}}
+[**{{operationIdCamelCase}}**]({{classname}}.md#{{operationIdCamelCase}}) | **{{vendorExtensions.httpMethod}}** | {{path}} | {{#summary}}{{summary}}{{/summary}}
 {{/operation}}
 {{/operations}}
 {{#operations}}
 {{#operation}}
 
-## {{{operationId}}}
+## {{{operationIdCamelCase}}}
 
 > {{{summary}}}{{#notes}}{{{notes}}}{{/notes}}
 
@@ -29,7 +29,7 @@ This endpoint does not need any parameter.
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 {{#requiredParams}}
-**{{paramName}}** | {{#isNullable}}Pointer to {{/isNullable}}{{#isPrimitiveType}}**{{{dataType}}}**{{/isPrimitiveType}}{{^isPrimitiveType}}[**{{{dataType}}}**]({{complexType}}.md){{/isPrimitiveType}} | {{description}} | {{^required}}[optional] {{/required}}{{#readOnly}}[readonly] {{/readOnly}}{{#defaultValue}}[default to {{{.}}}]{{/defaultValue}}
+**{{paramName}}** | {{#isNullable}}Pointer to {{/isNullable}}{{#isPrimitiveType}}**{{{dataType}}}**{{/isPrimitiveType}}{{^isPrimitiveType}}[**{{{dataType}}}**]({{vendorExtensions.dataType}}.md){{/isPrimitiveType}} | {{description}} | {{^required}}[optional] {{/required}}{{#readOnly}}[readonly] {{/readOnly}}{{#defaultValue}}[default to {{{.}}}]{{/defaultValue}}
 {{/requiredParams}}
 
 ### Optional Parameters
@@ -37,16 +37,12 @@ Name | Type | Description | Notes
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 {{#optionalParams}}
-**{{paramName}}** | {{#isNullable}}Pointer to {{/isNullable}}{{#isPrimitiveType}}**{{{dataType}}}**{{/isPrimitiveType}}{{^isPrimitiveType}}[**{{{dataType}}}**]({{complexType}}.md){{/isPrimitiveType}} | {{description}} | {{^required}}[optional] {{/required}}{{#readOnly}}[readonly] {{/readOnly}}{{#defaultValue}}[default to {{{.}}}]{{/defaultValue}}
+**{{paramName}}** | {{#isNullable}}Pointer to {{/isNullable}}{{#isPrimitiveType}}**{{{dataType}}}**{{/isPrimitiveType}}{{^isPrimitiveType}}[**{{{dataType}}}**]({{vendorExtensions.dataType}}.md){{/isPrimitiveType}} | {{description}} | {{^required}}[optional] {{/required}}{{#readOnly}}[readonly] {{/readOnly}}{{#defaultValue}}[default to {{{.}}}]{{/defaultValue}}
 {{/optionalParams}}
 
 ### Return type
 
-{{#returnType}}{{#returnTypeIsPrimitive}}**{{{returnType}}}**{{/returnTypeIsPrimitive}}{{^returnTypeIsPrimitive}}[**{{{returnType}}}**]({{returnBaseType}}.md){{/returnTypeIsPrimitive}}{{/returnType}}{{^returnType}} (empty response body){{/returnType}}
-
-### Authorization
-
-{{^authMethods}}No authorization required{{/authMethods}}{{#authMethods}}[{{{name}}}](../README.md#{{{name}}}){{^-last}}, {{/-last}}{{/authMethods}}
+{{#returnType}}{{#returnTypeIsPrimitive}}**{{{returnType}}}**{{/returnTypeIsPrimitive}}{{^returnTypeIsPrimitive}}[**{{{returnType}}}**]({{returnType}}.md){{/returnTypeIsPrimitive}}{{/returnType}}{{^returnType}} (empty response body){{/returnType}}
 
 ### HTTP request headers
 
