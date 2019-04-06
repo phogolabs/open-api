@@ -1,0 +1,22 @@
+language: java
+
+sudo: false
+
+services:
+- docker
+cache:
+  directories:
+  - "$HOME/.cache"
+
+script:
+  - mvn package
+
+deploy:
+  provider: script
+  script: 
+    - mvn release:clean
+    - mvn release:prepare
+    - mvn release:perform
+  skip_cleanup: true
+  on:
+    tags: true

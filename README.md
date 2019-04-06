@@ -1,5 +1,8 @@
 # OpenAPI Generator for the Golang
 
+[![License][license-img]][license-url]
+[![Build Status][travis-img]][travis-url]
+
 This is a plugin for the official [OpenAPI
 Generator](https://github.com/OpenAPITools/openapi-generator) generator. It
 generates a Golang http server based on OpenAPI specification. 
@@ -30,3 +33,8 @@ libraries with support for other languages and more.
 
 We are welcome to any contributions. Just fork the
 [project](https://github.com/phogolabs/open-api).
+
+[license-img]: https://img.shields.io/badge/license-MIT-blue.svg
+[license-url]: LICENSE
+[travis-img]: https://travis-ci.org/phogolabs/open-api.svg?branch=master
+[travis-url]: https://travis-ci.org/phogolabs/open-api
