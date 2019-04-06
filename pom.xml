@@ -5,7 +5,33 @@
     <artifactId>phogolabs-open-api-generator</artifactId>
     <packaging>jar</packaging>
     <name>phogolabs-open-api-generator</name>
-    <version>0.0.1</version>
+    <version>0.0.1-SNAPSHOT</version>
+    <licenses>
+        <license>
+            <name>MIT</name>
+            <url>https://github.com/phogolabs/open-api/blob/master/LICENSE</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <connection>scm:git:git@github.com:phogolabs/open-api.git</connection>
+        <developerConnection>scm:git:git@github.com:phogolabs/open-api.git</developerConnection>
+        <url>https://github.com/phogolabs/open-api</url>
+    </scm>
+    <distributionManagement>
+        <repository>
+            <id>apache-maven-repository</id>
+            <name>Apache Maven Repository</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+    </distributionManagement>
+    <developers>
+        <developer>
+            <id>iamralch</id>
+            <name>Svetlin Ralchev</name>
+            <email>contact@phogolabs.com</email>
+        </developer>
+    </developers>
     <build>
         <plugins>
             <plugin>
