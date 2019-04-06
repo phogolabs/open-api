@@ -31,7 +31,7 @@ public class GolangServerGenerator extends DefaultCodegen {
      * @return the friendly name for the generator
      */
     public String getName() {
-        return "golang-server";
+        return "go-chi-server";
     }
 
     /**
