@@ -48,7 +48,7 @@ func (h *{{{classname}}}) {{{operationId}}}(w http.ResponseWriter, r *http.Reque
   {{#hasParams}}
   input := &{{operationIdCamelCase}}Input{}
 
-  if err := rest.Bind(w, r, input); err != nil {
+  if err := rest.Bind(r, input); err != nil {
     rest.Error(w, r, err)
     return
   }
@@ -58,7 +58,10 @@ func (h *{{{classname}}}) {{{operationId}}}(w http.ResponseWriter, r *http.Reque
   {{#returnType}}
 
   output := &{{operationIdCamelCase}}Output{}
-  rest.Render(w, r, output)
+
+  if err := rest.Render(w, r, output); err != nil {
+    rest.Error(w, r, err)
+  }
   {{/returnType}}
 }
 

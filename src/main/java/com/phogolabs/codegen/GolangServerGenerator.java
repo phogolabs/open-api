@@ -14,10 +14,6 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class GolangServerGenerator extends DefaultCodegen {
-    // Constants
-    public static final String PROJECT_PATH = "projectPath";
-    public static final String PROJECT_ENV = "projectEnv";
-
     /**
      * Configures the type of generator.
      *
@@ -185,9 +181,8 @@ public class GolangServerGenerator extends DefaultCodegen {
     public void processOpts() {
         super.processOpts();
 
-        additionalProperties.put(GolangServerGenerator.PROJECT_PATH, this.projectPath());
-        additionalProperties.put(GolangServerGenerator.PROJECT_ENV, this.projectEnv());
-
+        additionalProperties.put(CodegenConstants.LOCAL_VARIABLE_PREFIX, this.projectEnv());
+        additionalProperties.put(CodegenConstants.INVOKER_PACKAGE, this.projectPath());
         additionalProperties.put(CodegenConstants.PROJECT_NAME, this.projectName());
         additionalProperties.put(CodegenConstants.PACKAGE_NAME, this.projectName());
         additionalProperties.put(CodegenConstants.PACKAGE_VERSION, "1.0.0");
@@ -218,19 +213,22 @@ public class GolangServerGenerator extends DefaultCodegen {
                      imports.add(importMapping.get(param.dataType));
                  }
 
+                 if (!isNull(param.defaultValue)) {
+                     operation.vendorExtensions.put("hasPropertyDefault", true);
+                     imports.add("github.com/phogolabs/schema");
+                     imports.add("net/http");
+                 } 
+
                  if (param.isFile) {
                      imports.add("mime/multipart");
                  }
 
-                 if (param.isModel || param.isFreeFormObject) {
-                     imports.add("encoding/json");
-                 }
-
-                 if(!param.isBodyParam) {
+                 if (!param.isBodyParam) {
                      input.add(createMapping("param", param));
                  }
 
                  if (param.isBodyParam) {
+                     imports.add("encoding/json");
                      operation.vendorExtensions.put("hasBodyParams", true);
                  }
 
@@ -252,21 +250,24 @@ public class GolangServerGenerator extends DefaultCodegen {
                      imports.add(importMapping.get(header.dataType));
                  }
 
+                 if (!isNull(header.defaultValue)) {
+                     operation.vendorExtensions.put("hasPropertyDefault", true);
+                     imports.add("github.com/phogolabs/schema");
+                     imports.add("net/http");
+                 } 
+
                  imports.add("github.com/phogolabs/rest");
              }
 
              for (CodegenResponse response: operation.responses) {
                  if (response.code.startsWith("2") || response.code.equals("default")) {
-                   operation.vendorExtensions.put("defaultResponse", response);
-                   break;
-                 }
+                     if (importMapping.containsKey(response.dataType)) {
+                         imports.add(importMapping.get(response.dataType));
+                     }
 
-                 if (response.isModel || response.isFreeFormObject) {
                      imports.add("encoding/json");
-                 }
-
-                 if (importMapping.containsKey(response.dataType)) {
-                     imports.add(importMapping.get(response.dataType));
+                     operation.vendorExtensions.put("defaultResponse", response);
+                     break;
                  }
              }
 
@@ -279,6 +280,7 @@ public class GolangServerGenerator extends DefaultCodegen {
              }
          }
 
+         imports.add("net/http");
          objs.put("imports", this.buildImports(imports));
          return objs;
      }
@@ -333,6 +335,12 @@ public class GolangServerGenerator extends DefaultCodegen {
         }
 
         this.buildPropertyTag(property);
+
+        if (!isNull(property.defaultValue)) {
+            model.vendorExtensions.put("hasPropertyDefault", true);
+            model.imports.add("github.com/phogolabs/schema");
+            model.imports.add("net/http");
+        }
     }
 
     private void buildPropertyTag(CodegenProperty property) {
@@ -360,6 +368,8 @@ public class GolangServerGenerator extends DefaultCodegen {
 
         if (!isNull(property.defaultValue)) {
             tags.add(String.format("default:\"%s\"", property.defaultValue));
+        } else {
+            tags.add("default:\"-\"");
         }
 
         this.buildPropertyValidationTag(property, tags);
@@ -458,6 +468,8 @@ public class GolangServerGenerator extends DefaultCodegen {
 
         if (!isNull(property.defaultValue)) {
             tags.add(String.format("default:\"%s\"", property.defaultValue));
+        } else {
+            tags.add("default:\"-\"");
         }
 
         List<String> validation = new ArrayList<String>();

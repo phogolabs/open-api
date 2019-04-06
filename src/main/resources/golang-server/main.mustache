@@ -1,6 +1,7 @@
 package main
 
 import (
+  "context"
 	"net/http"
 	"os"
 	"syscall"
@@ -10,7 +11,7 @@ import (
 	"github.com/phogolabs/log/handler/json"
 	"github.com/phogolabs/log/handler/rollbar"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"{{projectPath}}/service"
+	"{{invokerPackage}}/service"
 )
 
 var (
@@ -23,25 +24,31 @@ var flags = []cli.Flag{
 		Name:   "log-level",
 		Value:  "INFO",
 		Usage:  "level of logging",
-		EnvVar: "{{projectEnv}}_LOG_LEVEL",
+		EnvVar: "{{localVariablePrefix}}_LOG_LEVEL",
 	},
 	&cli.StringFlag{
 		Name:   "rollbar-token",
 		Value:  "",
 		Usage:  "Rollbar Token",
-		EnvVar: "{{projectEnv}}_ROLLBAR_TOKEN",
+		EnvVar: "{{localVariablePrefix}}_ROLLBAR_TOKEN",
 	},
 	&cli.StringFlag{
 		Name:   "rollbar-environment",
 		Value:  "development",
 		Usage:  "Rollbar Environment",
-		EnvVar: "{{projectEnv}}_ROLLBAR_ENVIRONMENT",
+		EnvVar: "{{localVariablePrefix}}_ROLLBAR_ENVIRONMENT",
+	},
+	&cli.StringFlag{
+		Name:   "listen-addr",
+		Value:  ":9292",
+		Usage:  "listen address of HTTP server",
+		EnvVar: "{{localVariablePrefix}}_LISTEN_ADDR",
 	},
 	&cli.StringFlag{
 		Name:   "metrics-listen-addr",
-		Value:  ":9292",
+		Value:  ":8282",
 		Usage:  "listen address of metrics HTTP server",
-		EnvVar: "{{projectEnv}}_METRICS_LISTEN_ADDR",
+		EnvVar: "{{localVariablePrefix}}_METRICS_LISTEN_ADDR",
 	},
 }
 
@@ -92,7 +99,7 @@ func afterInit(ctx *cli.Context) error {
 			Token:       ctx.String("rollbar-token"),
 			Environment: ctx.String("rollbar-environment"),
 			ServerHost:  os.Getenv("HOSTNAME"),
-			ServerRoot:  "https://{{projectPath}}",
+			ServerRoot:  "https://{{invokerPackage}}",
 		}),
 	}
 
@@ -108,6 +115,8 @@ func afterInit(ctx *cli.Context) error {
 func run(ctx *cli.Context) (err error) {
 	server := newServer(ctx)
 	ctx.Metadata["server"] = server
+
+	log.Infof("HTTP Server is listening on %s", ctx.String("listen-addr"))
 
 	if err = server.ListenAndServe(); err != nil {
 		if err == http.ErrServerClosed {

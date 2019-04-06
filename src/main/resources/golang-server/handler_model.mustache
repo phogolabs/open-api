@@ -3,7 +3,6 @@
 package {{apiPackage}}
 
 import (
-  "net/http"
 {{#imports}}
 {{#-first}}
 {{/-first}}
@@ -46,6 +45,12 @@ func (p *{{operationIdCamelCase}}InputParam) Bind(r *http.Request) (err error) {
   }
 
   {{/vendorExtensions.hasFormParams}}
+  {{#vendorExtensions.hasPropertyDefault}}
+  if err = schema.SetDefaults(p); err != nil {
+    return err
+  }
+
+  {{/vendorExtensions.hasPropertyDefault}}
   return nil
 }
 {{/vendorExtensions.hasInputParams}}
@@ -55,7 +60,7 @@ func (p *{{operationIdCamelCase}}InputParam) Bind(r *http.Request) (err error) {
 type {{operationIdCamelCase}}Input struct {
   {{#vendorExtensions.hasInputParams}}
   // Param contains the parameters for the {{operationIdCamelCase}} operation
-  Param {{operationIdCamelCase}}InputParam `json:"-"{{#withXml}} xml:"-"{{/withXml}}`
+  Param *{{operationIdCamelCase}}InputParam `json:"-"{{#withXml}} xml:"-"{{/withXml}}`
   {{/vendorExtensions.hasInputParams}}
   {{#vendorExtensions.hasBodyParams}}
   {{#bodyParam}}
@@ -66,7 +71,7 @@ type {{operationIdCamelCase}}Input struct {
   Size int64 {{{vendorExtensions.tag}}}
   {{/isFile}}
   // Body payload{{#description}}: {{{description}}}{{/description}}
-  Body {{#isNullable}}*{{/isNullable}}{{{dataType}}} {{{vendorExtensions.tag}}}
+  Body {{#isModel}}*{{/isModel}}{{^isModel}}{{#isNullable}}*{{/isNullable}}{{/isModel}}{{{dataType}}} {{{vendorExtensions.tag}}}
   {{/bodyParam}}
   {{/vendorExtensions.hasBodyParams}}
 }
@@ -75,6 +80,14 @@ type {{operationIdCamelCase}}Input struct {
 func (p *{{operationIdCamelCase}}Input) Bind(r *http.Request) (err error) {
   {{#vendorExtensions.hasBodyParams}}
   {{#bodyParam}}
+  {{#isModel}}
+  if p.Body != nil {
+    if err = p.Body.Bind(r); err != nil {
+      return
+    }
+  }
+
+  {{/isModel}}
   {{#isFile}}
   var header *multipart.FileHeader
   if p.Body, header, err = r.FormFile("{{baseName}}"); err != nil {
@@ -91,6 +104,7 @@ func (p *{{operationIdCamelCase}}Input) Bind(r *http.Request) (err error) {
   {{/bodyParam}}
   {{/vendorExtensions.hasBodyParams}}
   {{#vendorExtensions.hasInputParams}}
+  p.Param = &{{operationIdCamelCase}}InputParam{}
   err = p.Param.Bind(r)
   {{/vendorExtensions.hasInputParams}}
   return
@@ -102,13 +116,19 @@ func (p *{{operationIdCamelCase}}Input) Bind(r *http.Request) (err error) {
 
 // UnmarshalJSON unmarshals the body from JSON
 func (p *{{operationIdCamelCase}}Input) UnmarshalJSON(data []byte) error {
-  return json.Unmarshal(data, {{^isNullable}}&{{/isNullable}}p.Body);
+  {{#isModel}}
+  p.Body = &{{{dataType}}}{}
+  {{/isModel}}
+  return json.Unmarshal(data, {{^isModel}}{{^isNullable}}&{{/isNullable}}{{/isModel}}p.Body);
 }
 {{#withXml}}
 
 // UnmarshalXML unmarshals the body from XML
 func (p *{{operationIdCamelCase}}Input) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
-  return e.DecodeElement({{^isNullable}}&{{/isNullable}}p.Body, start)
+  {{#isModel}}
+  p.Body = &{{{dataType}}}{}
+  {{/isModel}}
+  return e.DecodeElement({{^isModel}}{{^isNullable}}&{{/isNullable}}{{/isModel}}p.Body, start)
 }
 {{/withXml}}
 {{/isByteArray}}
@@ -129,28 +149,46 @@ type {{operationIdCamelCase}}OutputParam struct {
 
 // Render manages response payloads.
 func (h *{{operationIdCamelCase}}OutputParam) Render(w http.ResponseWriter, r *http.Request) (err error) {
-  return rest.EncodeHeader(w, h);
+  if err = rest.EncodeHeader(w, h); err != nil {
+    return err
+  }
+  {{#vendorExtensions.hasPropertyDefault}}
+
+  if err = schema.SetDefaults(h); err != nil {
+    return err
+  }
+  {{/vendorExtensions.hasPropertyDefault}}
+  return nil
 }
 {{/hasHeaders}}
 
 // {{operationIdCamelCase}}Output is the output for the {{operationIdCamelCase}} operation
 type {{operationIdCamelCase}}Output struct {
   {{#hasHeaders}}
-  Param {{operationIdCamelCase}}OutputParam `json:"-"{{#withXml}} xml:"-"{{/withXml}}`
+  Param *{{operationIdCamelCase}}OutputParam `json:"-"{{#withXml}} xml:"-"{{/withXml}}`
   {{/hasHeaders}}
   // Body payload{{#description}}: {{{.}}}{{/description}}
-  Body {{#isNullable}}*{{/isNullable}}{{{dataType}}} {{{vendorExtensions.tag}}}
+  Body {{#isModel}}*{{/isModel}}{{^isModel}}{{#isNullable}}*{{/isNullable}}{{/isModel}}{{{dataType}}} {{{vendorExtensions.tag}}}
 }
 
 // Render manages response payloads.
 func (p *{{operationIdCamelCase}}Output) Render(w http.ResponseWriter, r *http.Request) (err error) {
-  w.WriteHeader({{code}})
+  rest.Status(r, {{code}})
   {{#hasHeaders}}
 
+  p.Param = &{{operationIdCamelCase}}OutputParam{}
   if err = p.Param.Render(w, r); err != nil {
     return
   }
   {{/hasHeaders}}
+  {{#isModel}}
+
+  if p.Body != nil {
+    if err = p.Body.Render(w, r); err != nil {
+      return
+    }
+  }
+  {{/isModel}}
   {{#isFile}}
 
   _, err = io.Copy(w, p.Body)
@@ -165,13 +203,13 @@ func (p *{{operationIdCamelCase}}Output) Render(w http.ResponseWriter, r *http.R
 {{^isFile}}{{^isByteArray}}
 // MarshalJSON marshals the body as JSON
 func (p *{{operationIdCamelCase}}Output) MarshalJSON() ([]byte, error) {
-  return json.Marshal(&p.Body);
+  return json.Marshal({{^isModel}}{{^isNullable}}&{{/isNullable}}{{/isModel}}p.Body)
 }
 {{#withXml}}
 
 // MarshalXML marshals the body as XML
 func (p *{{operationIdCamelCase}}Output) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-  return e.EncodeElement(&p.Body, start)
+  return e.EncodeElement({{^isModel}}{{^isNullable}}&{{/isNullable}}{{/isModel}}p.Body, start)
 }
 {{/withXml}}
 {{/isByteArray}}
