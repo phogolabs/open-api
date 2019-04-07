@@ -54,7 +54,7 @@ func (h *{{{classname}}}) {{{operationId}}}(w http.ResponseWriter, r *http.Reque
   }
 
   {{/hasParams}}
-  //TODO: implement the operation {{nickname}}
+  //TODO: {{operationIdCamelCase}} => implement the operation
   {{#returnType}}
 
   output := &{{operationIdCamelCase}}Output{}

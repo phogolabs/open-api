@@ -29,7 +29,7 @@ This endpoint does not need any parameter.
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 {{#requiredParams}}
-**{{paramName}}** | {{#isNullable}}Pointer to {{/isNullable}}{{#isPrimitiveType}}**{{{dataType}}}**{{/isPrimitiveType}}{{^isPrimitiveType}}[**{{{dataType}}}**]({{vendorExtensions.dataType}}.md){{/isPrimitiveType}} | {{description}} | {{^required}}[optional] {{/required}}{{#readOnly}}[readonly] {{/readOnly}}{{#defaultValue}}[default to {{{.}}}]{{/defaultValue}}
+**{{paramName}}** | {{#isNullable}}Pointer to {{/isNullable}}{{^isModel}}**{{{dataType}}}**{{/isModel}}{{#isModel}}[**{{{dataType}}}**]({{vendorExtensions.dataType}}.md){{/isModel}} | {{description}} | {{^required}}[optional] {{/required}}{{#readOnly}}[readonly] {{/readOnly}}{{#defaultValue}}[default to {{{.}}}]{{/defaultValue}}
 {{/requiredParams}}
 
 ### Optional Parameters
@@ -37,13 +37,15 @@ Name | Type | Description | Notes
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 {{#optionalParams}}
-**{{paramName}}** | {{#isNullable}}Pointer to {{/isNullable}}{{#isPrimitiveType}}**{{{dataType}}}**{{/isPrimitiveType}}{{^isPrimitiveType}}[**{{{dataType}}}**]({{vendorExtensions.dataType}}.md){{/isPrimitiveType}} | {{description}} | {{^required}}[optional] {{/required}}{{#readOnly}}[readonly] {{/readOnly}}{{#defaultValue}}[default to {{{.}}}]{{/defaultValue}}
+**{{paramName}}** | {{#isNullable}}Pointer to {{/isNullable}}{{^isModel}}**{{{dataType}}}**{{/isModel}}{{#isModel}}[**{{{dataType}}}**]({{vendorExtensions.dataType}}.md){{/isModel}} | {{description}} | {{^required}}[optional] {{/required}}{{#readOnly}}[readonly] {{/readOnly}}{{#defaultValue}}[default to {{{.}}}]{{/defaultValue}}
 {{/optionalParams}}
 
+{{#vendorExtensions.defaultResponse}}
 ### Return type
 
-{{#returnType}}{{#returnTypeIsPrimitive}}**{{{returnType}}}**{{/returnTypeIsPrimitive}}{{^returnTypeIsPrimitive}}[**{{{returnType}}}**]({{returnType}}.md){{/returnTypeIsPrimitive}}{{/returnType}}{{^returnType}} (empty response body){{/returnType}}
+{{^isModel}}**{{{returnType}}}**{{/isModel}}{{#isModel}}[**{{{dataType}}}**]({{dataType}}.md){{/isModel}}
 
+{{/vendorExtensions.defaultResponse}}
 ### HTTP request headers
 
 - **Content-Type**: {{#consumes}}`{{{mediaType}}}`{{#hasMore}}, {{/hasMore}}{{/consumes}}{{^consumes}}Not defined{{/consumes}}
