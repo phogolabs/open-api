@@ -12,6 +12,20 @@ import (
 {{/imports}}
 {{#models}}
 {{#model}}
+{{#isEnum}}
+
+// {{{classname}}} emum{{#description}}: {{{description}}}{{/description}}
+type {{{classname}}} {{^format}}{{dataType}}{{/format}}{{#format}}{{{format}}}{{/format}}
+
+// List of {{{name}}}
+const (
+  {{#allowableValues}}
+	{{#enumVars}}
+	{{name}} {{{classname}}} = {{{value}}}
+	{{/enumVars}}
+	{{/allowableValues}}
+)
+{{/isEnum}}
 {{^isEnum}}
 
 // {{{classname}}} model{{#description}}: {{{description}}}{{/description}}

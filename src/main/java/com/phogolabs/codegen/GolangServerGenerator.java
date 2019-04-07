@@ -94,59 +94,16 @@ public class GolangServerGenerator extends DefaultCodegen {
 
         defaultIncludes = new HashSet<String>(
                 Arrays.asList(
-                        "DateTime",
-                        "map",
-                        "array",
-                        "double",
-                        "long",
-                        "short",
-                        "char",
-                        "float",
-                        "String",
-                        "boolean",
-                        "Boolean",
-                        "Double",
-                        "Void",
-                        "int",
-                        "integer",
-                        "Integer",
-                        "Long",
-                        "Float")
+                        "DateTime", "map", "array", "double", "long", "short", "char",
+                        "float", "String", "boolean", "Boolean", "Double", "Void", "int",
+                        "integer", "Integer", "Long", "Float")
         );
-
-        typeMapping.put("integer", "int32");
-        typeMapping.put("long", "int64");
-        typeMapping.put("number", "float32");
-        typeMapping.put("float", "float32");
-        typeMapping.put("double", "float64");
-        typeMapping.put("boolean", "bool");
-        typeMapping.put("string", "string");
-        typeMapping.put("UUID", "string");
-        typeMapping.put("date", "string");
-        typeMapping.put("DateTime", "time.Time");
-        typeMapping.put("password", "string");
-        typeMapping.put("object", "map[string]interface{}");
-        typeMapping.put("File", "io.ReadCloser");
-        typeMapping.put("file", "io.ReadCloser");
-        typeMapping.put("binary", "io.ReadCloser");
-        typeMapping.put("ByteArray", "io.ReadCloser");
 
         languageSpecificPrimitives = new HashSet<String>(
                 Arrays.asList(
-                        "string",
-                        "bool",
-                        "uint",
-                        "uint32",
-                        "uint64",
-                        "int",
-                        "int32",
-                        "int64",
-                        "float32",
-                        "float64",
-                        "complex64",
-                        "complex128",
-                        "rune",
-                        "byte")
+                        "string", "bool", "uint", "uint32", "uint64", "int",
+                        "int32", "int64", "float32", "float64", "complex64",
+                        "complex128", "rune", "byte")
         );
 
         // type mappings
@@ -158,7 +115,7 @@ public class GolangServerGenerator extends DefaultCodegen {
         typeMapping.put("double", "float64");
         typeMapping.put("boolean", "bool");
         typeMapping.put("string", "string");
-        typeMapping.put("UUID", "string");
+        typeMapping.put("UUID", "schema.UUID");
         typeMapping.put("date", "string");
         typeMapping.put("DateTime", "time.Time");
         typeMapping.put("password", "string");
@@ -170,10 +127,8 @@ public class GolangServerGenerator extends DefaultCodegen {
 
         // import mappings
         importMapping = new HashMap<String, String>();
-        importMapping.put("DateTime", "time");
         importMapping.put("time.Time", "time");
-        importMapping.put("File", "io");
-        importMapping.put("UUID", "github.com/phogolabs/schema");
+        importMapping.put("schema.UUID", "github.com/phogolabs/schema");
         importMapping.put("io.ReadCloser", "io");
     }
 
@@ -211,6 +166,10 @@ public class GolangServerGenerator extends DefaultCodegen {
              for (CodegenParameter param: operation.allParams) {
                  if (importMapping.containsKey(param.dataType)) {
                      imports.add(importMapping.get(param.dataType));
+                 }
+
+                 if(param.isEnum) {
+                     // param.dataType = param.enumName;
                  }
 
                  if (!isNull(param.defaultValue)) {
@@ -267,6 +226,7 @@ public class GolangServerGenerator extends DefaultCodegen {
 
                      imports.add("encoding/json");
                      operation.vendorExtensions.put("defaultResponse", response);
+                     response.vendorExtensions.put("hasBody", !isNull(operation.returnType));
                      break;
                  }
              }
@@ -316,12 +276,20 @@ public class GolangServerGenerator extends DefaultCodegen {
     }
 
     @Override
+    public Map<String, Object> postProcessModels(Map<String, Object> objs) {
+        objs = super.postProcessModels(objs);
+        return postProcessModelsEnum(objs);
+    }
+
+    @Override
     public void postProcessModelProperty(CodegenModel model, CodegenProperty property) {
         super.postProcessModelProperty(model, property);
 
         String baseType = "";
 
-        if (property.isModel) {
+        if (property.isEnum) {
+            //TODO:
+        } else if (property.isModel) {
             baseType = property.dataType;
         } else if (property.isListContainer) {
             baseType = property.items.dataType;
@@ -382,6 +350,12 @@ public class GolangServerGenerator extends DefaultCodegen {
 
         if (property.required) {
             validation.add("required");
+        }
+
+        if(property.isEnum) {
+            validation.add(String.format("oneof=%s", String.join(" ", property._enum)));
+        } else if(property.isUuid) {
+            validation.add("uuid_rfc4122");
         }
 
         if (property.hasValidation) {
@@ -476,6 +450,12 @@ public class GolangServerGenerator extends DefaultCodegen {
 
         if (property.required) {
             validation.add("required");
+        }
+
+        if(property.isEnum) {
+            validation.add(String.format("oneof=%s", String.join(" ", property._enum)));
+        } else if(property.isUuid) {
+            validation.add("uuid_rfc4122");
         }
 
         if (property.hasValidation) {
@@ -719,6 +699,57 @@ public class GolangServerGenerator extends DefaultCodegen {
         name = StringUtils.camelize(name, false);
         name = this.format(name);
         return name;
+    }
+
+    @Override
+    public String toEnumDefaultValue(String value, String datatype) {
+        return datatype + "_" + value;
+    }
+
+    @Override
+    public String toEnumVarName(String name, String datatype) {
+        if (name.length() == 0) {
+            return "Empty";
+        }
+
+        // number
+        if ("int".equals(datatype) || "double".equals(datatype) || "float".equals(datatype)) {
+            name = name.replaceAll("-", "Minus");
+            name = name.replaceAll("\\+", "Plus");
+            name = name.replaceAll("\\.", "Dot");
+        }
+
+        // for symbol, e.g. $, #
+        if (getSymbolName(name) != null) {
+            return getSymbolName(name).toUpperCase(Locale.ROOT);
+        }
+
+        // string
+        String enumName = toModelName(name);
+        enumName = enumName.replaceFirst("^_", "");
+        enumName = enumName.replaceFirst("_$", "");
+
+        if (isReservedWord(enumName)) { // reserved word
+            return escapeReservedWord(enumName);
+        } else if (enumName.matches("\\d.*")) { // starts with a number
+            return "_" + enumName;
+        } else {
+            return enumName;
+        }
+    }
+
+    @Override
+    public String toEnumName(CodegenProperty property) {
+        String enumName = toModelName(property.name);
+
+        // remove [] for array or map of enum
+        enumName = enumName.replace("[]", "");
+
+        if (enumName.matches("\\d.*")) { // starts with number
+            return "_" + enumName;
+        } else {
+            return enumName;
+        }
     }
 
     @Override

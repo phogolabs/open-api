@@ -167,8 +167,10 @@ type {{operationIdCamelCase}}Output struct {
   {{#hasHeaders}}
   Param *{{operationIdCamelCase}}OutputParam `json:"-"{{#withXml}} xml:"-"{{/withXml}}`
   {{/hasHeaders}}
+  {{#vendorExtensions.hasBody}}
   // Body payload{{#description}}: {{{.}}}{{/description}}
   Body {{#isModel}}*{{/isModel}}{{^isModel}}{{#isNullable}}*{{/isNullable}}{{/isModel}}{{{dataType}}} {{{vendorExtensions.tag}}}
+  {{/vendorExtensions.hasBody}}
 }
 
 // Render manages response payloads.
@@ -181,6 +183,7 @@ func (p *{{operationIdCamelCase}}Output) Render(w http.ResponseWriter, r *http.R
     return
   }
   {{/hasHeaders}}
+  {{#vendorExtensions.hasBody}}
   {{#isModel}}
 
   if p.Body != nil {
@@ -198,8 +201,10 @@ func (p *{{operationIdCamelCase}}Output) Render(w http.ResponseWriter, r *http.R
   writer := base64.NewEncoder(base64.StdEncoding, w)
   _, err = io.Copy(writer, p.Body)
   {{/isByteArray}}
+  {{/vendorExtensions.hasBody}}
   return
 }
+{{#vendorExtensions.hasBody}}
 {{^isFile}}{{^isByteArray}}
 // MarshalJSON marshals the body as JSON
 func (p *{{operationIdCamelCase}}Output) MarshalJSON() ([]byte, error) {
@@ -214,6 +219,7 @@ func (p *{{operationIdCamelCase}}Output) MarshalXML(e *xml.Encoder, start xml.St
 {{/withXml}}
 {{/isByteArray}}
 {{/isFile}}
+{{/vendorExtensions.hasBody}}
 {{/vendorExtensions.defaultResponse}}
 {{/operation}}
 {{/operations}}
