@@ -36,26 +36,6 @@ type {{classname}} struct {
   {{name}} {{#isNullable}}*{{/isNullable}}{{dataType}} {{{vendorExtensions.tag}}}
 {{/vars}}
 }
-
-// Bind manages request partameters
-func (m *{{classname}}) Bind(r *http.Request) error {
-  {{#vendorExtensions.hasPropertyDefault}}
-  if err := schema.SetDefaults(m); err != nil {
-    return err
-  }
-  {{/vendorExtensions.hasPropertyDefault}}
-  return nil
-}
-
-// Render manages response payloads.
-func (m *{{classname}}) Render(w http.ResponseWriter, r *http.Request) error {
-  {{#vendorExtensions.hasPropertyDefault}}
-  if err := schema.SetDefaults(m); err != nil {
-    return err
-  }
-  {{/vendorExtensions.hasPropertyDefault}}
-  return nil
-}
 {{/isEnum}}
 {{/model}}
 {{/models}}

@@ -103,7 +103,7 @@ public class GolangServerGenerator extends DefaultCodegen {
                 Arrays.asList(
                         "string", "bool", "uint", "uint32", "uint64", "int",
                         "int32", "int64", "float32", "float64", "complex64",
-                        "complex128", "rune", "byte")
+                        "complex128", "rune", "byte", "time.Time")
         );
 
         // type mappings
